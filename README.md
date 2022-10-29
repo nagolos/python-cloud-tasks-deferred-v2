@@ -12,7 +12,20 @@ Fork of [python-cloud-tasks-deferred](https://github.com/grktsh/python-cloud-tas
 
 ## Installation
 
+Addd following handler to your app.yaml
 
+```yaml
+- url: /_tasks/deferred
+  script: cloud_tasks_deferred.wsgi.application
+  login: admin
+```
+
+Initialize module in flask
+```python
+from cloud_tasks_deferred_v2.flask import init_deferred
+
+init_deferred(app)
+```
 
 
 ## Prerequisites

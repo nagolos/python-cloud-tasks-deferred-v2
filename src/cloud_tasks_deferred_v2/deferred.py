@@ -69,10 +69,6 @@ Example usage::
     # Providing non-default task queue arguments
     deferred.defer(do_something_later, my_key, 20, _queue="foo", _countdown=60)
 """
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 
 import datetime
 import logging
@@ -80,7 +76,6 @@ import os
 import pickle
 import types
 
-import six
 from google.cloud import tasks_v2
 from google.protobuf import timestamp_pb2
 
@@ -169,12 +164,7 @@ def _curry_callable(obj, *args, **kwargs):
             kwargs,
         )
     if isinstance(obj, (types.BuiltinFunctionType, types.BuiltinMethodType)):
-        # https://stackoverflow.com/a/42909466
-        is_builtin_function = (
-            isinstance(obj.__self__, types.ModuleType)  # Python 3
-            or obj.__self__ is None  # Python 2
-        )
-        if is_builtin_function:
+        if isinstance(obj.__self__, types.ModuleType):
             return obj, args, kwargs
         else:
             return (
@@ -229,8 +219,7 @@ def defer(obj, *args, **kwargs):
         'url': _DEFAULT_URL,
     }
     task_kwargs = {
-        k: kwargs.pop('_' + k, v)
-        for k, v in six.iteritems(task_kwargs_defaults)
+        k: kwargs.pop('_' + k, v) for k, v in task_kwargs_defaults.items()
     }
     queue = kwargs.pop('_queue', _DEFAULT_QUEUE)
 
@@ -241,14 +230,14 @@ def defer(obj, *args, **kwargs):
 
 class _Task(object):
     def __init__(
-        self,
-        payload=None,
-        countdown=None,
-        eta=None,
-        headers=None,
-        name=None,
-        target=None,
-        url=None,
+            self,
+            payload=None,
+            countdown=None,
+            eta=None,
+            headers=None,
+            name=None,
+            target=None,
+            url=None,
     ):
         self.payload = payload
         self._task_id = name
@@ -263,7 +252,7 @@ class _Task(object):
             _get_project_id(), _get_location_id(), queue_name
         )
         task_dict = self._create_task_dict(parent)
-        return client.create_task(parent, task_dict)
+        return client.create_task(request={'parent': parent, 'task': task_dict})
 
     def _create_task_dict(self, parent):
         result = {
@@ -319,30 +308,15 @@ def _to_timestamp(dt):
 
 
 def _get_project_id():
-    try:
-        return os.environ['GOOGLE_CLOUD_PROJECT']
-    except KeyError:  # pragma: no cover
-        from google.appengine.api import app_identity
-
-        return app_identity.get_application_id()
+    return os.environ['GOOGLE_CLOUD_PROJECT']
 
 
 def _get_gae_service():
-    try:
-        return os.environ['GAE_SERVICE']
-    except KeyError:  # pragma: no cover
-        from google.appengine.api import modules
-
-        return modules.get_current_module_name()
+    return os.environ['GAE_SERVICE']
 
 
 def _get_gae_version():
-    try:
-        return os.environ['GAE_VERSION']
-    except KeyError:  # pragma: no cover
-        from google.appengine.api import modules
-
-        return modules.get_current_version_name()
+    return os.environ['GAE_VERSION']
 
 
 def _get_location_id():
