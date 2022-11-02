@@ -5,7 +5,7 @@ from flask import request
 
 from cloud_tasks_deferred_v2 import deferred
 
-app = Blueprint('temp', __name__)
+app = Blueprint('cloud_tasks_deferred', __name__)
 logger = logging.getLogger(__name__)
 
 
