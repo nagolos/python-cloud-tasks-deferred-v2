@@ -316,7 +316,7 @@ def _get_gae_service():
 
 
 def _get_gae_version():
-    return os.environ['GAE_VERSION']
+    return os.environ.get('GAE_VERSION')
 
 
 def _get_location_id():
