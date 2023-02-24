@@ -312,7 +312,7 @@ def _get_project_id():
 
 
 def _get_gae_service():
-    return os.environ['GAE_SERVICE']
+    return os.environ.get('GAE_SERVICE', 'default')
 
 
 def _get_gae_version():
